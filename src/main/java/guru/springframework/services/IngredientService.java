@@ -13,4 +13,6 @@ import java.util.Set;
 public interface IngredientService {
 
     IngredientCommand findCommandByRecipeIdAndIngredientId(Long recipeId, Long ingredientId);
+
+    IngredientCommand saveIngredientCommand(IngredientCommand ingredientCommand);
 }
