@@ -1,7 +1,6 @@
 package guru.springframework.services;
 
 import guru.springframework.commands.IngredientCommand;
-import guru.springframework.commands.RecipeCommand;
 import guru.springframework.converters.IngredientCommandToIngredient;
 import guru.springframework.converters.IngredientToIngredientCommand;
 import guru.springframework.domain.Ingredient;
@@ -11,9 +10,7 @@ import guru.springframework.repositories.UnitOfMeasureRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Iterator;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Created by oleksandr.kydiuk on 12/22/2017.
@@ -78,7 +75,7 @@ public class IngredientServiceImpl implements IngredientService {
             Recipe recipe = recipeOptional.get();
             Optional<Ingredient> ingredientOptional = recipe.getIngredients()
                     .stream()
-                    .filter(ingredient -> !ingredient.getId().equals(ingredientCommand.getId()))
+                    .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
                     .findFirst();
 
             if (ingredientOptional.isPresent()) {
