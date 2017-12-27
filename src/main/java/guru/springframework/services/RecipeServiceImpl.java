@@ -3,6 +3,7 @@ package guru.springframework.services;
 import guru.springframework.commands.RecipeCommand;
 import guru.springframework.converters.RecipeCommandToRecipe;
 import guru.springframework.converters.RecipeToRecipeCommand;
+import guru.springframework.domain.Ingredient;
 import guru.springframework.domain.Recipe;
 import guru.springframework.repositories.RecipeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
@@ -65,5 +67,31 @@ public class RecipeServiceImpl implements RecipeService {
         Recipe savedRecipe = recipeRepository.save(detachedRecipe);
         log.debug("Saved RecipeId:" + savedRecipe.getId());
         return recipeToRecipeCommand.convert(savedRecipe);
+    }
+
+    @Override
+    @Transactional
+    public void deleteIngredient(Long recipeId, Long ingredientId) {
+        log.debug("Deleting ingredient: " + recipeId + " : " + ingredientId);
+
+        Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
+
+        if (recipeOptional.isPresent()) {
+            Recipe recipe = recipeOptional.get();
+            log.debug("Found recipe");
+
+            Optional<Ingredient> ingredientOptional = recipe.getIngredients().stream()
+                    .filter(ingredient -> ingredient.getId().equals(ingredientId))
+                    .findFirst();
+
+            if (ingredientOptional.isPresent()) {
+                log.debug("Ingredient found:" + ingredientId);
+                recipe.getIngredients().remove(ingredientOptional.get());
+                ingredientOptional.get().setRecipe(null);
+                recipeRepository.save(recipe);
+            }
+        } else {
+            log.error("recipe was not found. ID" + recipeId);
+        }
     }
 }

@@ -11,7 +11,9 @@ import guru.springframework.repositories.UnitOfMeasureRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by oleksandr.kydiuk on 12/22/2017.
@@ -76,10 +78,10 @@ public class IngredientServiceImpl implements IngredientService {
             Recipe recipe = recipeOptional.get();
             Optional<Ingredient> ingredientOptional = recipe.getIngredients()
                     .stream()
-                    .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
+                    .filter(ingredient -> !ingredient.getId().equals(ingredientCommand.getId()))
                     .findFirst();
 
-            if (ingredientOptional.isPresent()){
+            if (ingredientOptional.isPresent()) {
                 Ingredient ingredientFound = ingredientOptional.get();
                 ingredientFound.setDescription(ingredientCommand.getDescription());
                 ingredientFound.setAmount(ingredientCommand.getAmount());
@@ -92,10 +94,21 @@ public class IngredientServiceImpl implements IngredientService {
             Recipe savedRecipe = recipeRepository.save(recipe);
             log.debug("Ingredient was updated. Id: " + ingredientCommand.getId());
 
-            return ingredientToIngredientCommand.convert(savedRecipe.getIngredients().stream()
-            .filter(recipeIngredient -> recipeIngredient.getId().equals(ingredientCommand.getId()))
-            .findFirst()
-            .get());
+            //
+            Optional<Ingredient> savedIngredientOptional = savedRecipe.getIngredients().stream()
+                    .filter(recipeIngredient -> recipeIngredient.getId().equals(ingredientCommand.getId()))
+                    .findFirst();
+
+            //check by description
+            if (!savedIngredientOptional.isPresent()) {
+                savedIngredientOptional = savedRecipe.getIngredients().stream()
+                        .filter(recipeIngredients -> recipeIngredients.getDescription().equals(ingredientCommand.getDescription()))
+                        .filter(recipeIngredients -> recipeIngredients.getAmount().equals(ingredientCommand.getAmount()))
+                        .filter(recipeIngredients -> recipeIngredients.getUom().getId().equals(ingredientCommand.getUom().getId()))
+                        .findFirst();
+            }
+            //todo check for fail
+            return ingredientToIngredientCommand.convert(savedIngredientOptional.get());
         }
     }
 }

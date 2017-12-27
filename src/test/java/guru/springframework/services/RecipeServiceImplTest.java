@@ -4,6 +4,7 @@ package guru.springframework.services;
 import guru.springframework.commands.RecipeCommand;
 import guru.springframework.converters.RecipeCommandToRecipe;
 import guru.springframework.converters.RecipeToRecipeCommand;
+import guru.springframework.domain.Ingredient;
 import guru.springframework.domain.Recipe;
 import guru.springframework.repositories.RecipeRepository;
 import org.junit.Before;
@@ -91,6 +92,27 @@ public class RecipeServiceImplTest {
         assertEquals(recipes.size(), 1);
         verify(recipeRepository, times(1)).findAll();
         verify(recipeRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    public void testDeleteIngredientCommand() throws Exception {
+        //given
+        Recipe recipe = new Recipe();
+        Ingredient ingredient1 = new Ingredient();
+        ingredient1.setId(1L);
+        Ingredient ingredient2 = new Ingredient();
+        ingredient2.setId(2L);
+        recipe.addIngredient(ingredient1)
+                .addIngredient(ingredient2);
+
+        Optional<Recipe> recipeOptional = Optional.of(recipe);
+        when(recipeRepository.findById(anyLong())).thenReturn(recipeOptional);
+
+        //when
+        recipeService.deleteIngredient(anyLong(), ingredient1.getId());
+
+        verify(recipeRepository, times(1)).findById(anyLong());
+
     }
 
 }

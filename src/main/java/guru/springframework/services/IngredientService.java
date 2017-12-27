@@ -1,6 +1,7 @@
 package guru.springframework.services;
 
 import guru.springframework.commands.IngredientCommand;
+import guru.springframework.commands.RecipeCommand;
 import guru.springframework.domain.Ingredient;
 import org.springframework.stereotype.Service;
 
